@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>New Tab</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            height: 100%;
+            width: 100%;
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden;
+            overflow-y: auto;
+            background: #0f0f1a;
+        }
+
+        /* Hide scrollbar but keep functionality */
+        ::-webkit-scrollbar {
+            width: 0;
+            height: 0;
+            display: none;
+        }
+
+        html {
+            scrollbar-width: none; /* Firefox */
+            -ms-overflow-style: none; /* IE/Edge */
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', sans-serif;
+            background: #0a0a14;
+            color: #f0f0f5;
+            padding: 80px 40px 60px;
+            position: relative;
+            width: 100%;
+            max-width: 100vw;
+            overflow-x: hidden;
+        }
+
+        /* Obsidian-inspired animated background with particles */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(ellipse at 20% 30%, rgba(88, 28, 135, 0.15) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 70%, rgba(109, 40, 217, 0.12) 0%, transparent 50%),
+                radial-gradient(ellipse at 50% 50%, rgba(88, 28, 135, 0.08) 0%, transparent 50%);
+            z-index: 0;
+            animation: pulseGlow 8s ease-in-out infinite;
+        }
+
+        body::after {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(139, 92, 246, 0.03) 2px, rgba(139, 92, 246, 0.03) 4px),
+                repeating-linear-gradient(90deg, transparent, transparent 2px, rgba(139, 92, 246, 0.03) 2px, rgba(139, 92, 246, 0.03) 4px);
+            z-index: 0;
+            opacity: 0.5;
+            animation: gridSlide 20s linear infinite;
+        }
+
+        @keyframes pulseGlow {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.8; transform: scale(1.1); }
+        }
+
+        @keyframes gridSlide {
+            0% { transform: translate(0, 0); }
+            100% { transform: translate(50px, 50px); }
+        }
+
+        .container {
+            position: relative;
+            z-index: 1;
+            width: 100%;
+            max-width: 1400px;
+            margin: 0 auto;
+            text-align: center;
+            padding: 0 60px;
+        }
+
+        .time-widget {
+            text-align: center;
+            margin-bottom: 60px;
+            position: relative;
+        }
+
+        /* Obsidian crystal glow effect behind time */
+        .time-widget::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, rgba(139, 92, 246, 0.15) 0%, transparent 70%);
+            filter: blur(60px);
+            z-index: -1;
+            animation: crystalPulse 6s ease-in-out infinite;
+        }
+
+        @keyframes crystalPulse {
+            0%, 100% { 
+                transform: translate(-50%, -50%) scale(1);
+                opacity: 0.5;
+            }
+            50% { 
+                transform: translate(-50%, -50%) scale(1.2);
+                opacity: 0.8;
+            }
+        }
+
+        .time {
+            font-size: 96px;
+            font-weight: 200;
+            letter-spacing: -3px;
+            margin-bottom: 12px;
+            background: linear-gradient(135deg, #e9d5ff 0%, #a78bfa 50%, #8b5cf6 100%);
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 60px rgba(139, 92, 246, 0.5);
+            filter: drop-shadow(0 0 30px rgba(139, 92, 246, 0.6));
+            animation: shimmer 3s ease-in-out infinite;
+        }
+
+        @keyframes shimmer {
+            0%, 100% { filter: drop-shadow(0 0 30px rgba(139, 92, 246, 0.6)) brightness(1); }
+            50% { filter: drop-shadow(0 0 50px rgba(139, 92, 246, 0.9)) brightness(1.2); }
+        }
+
+        .date {
+            font-size: 20px;
+            color: #c4b5fd;
+            font-weight: 300;
+            text-shadow: 0 0 20px rgba(139, 92, 246, 0.3);
+        }
+
+        .search-container {
+            text-align: center;
+            width: 100%;
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+        .search-box {
+            width: 100%;
+            position: relative;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 12px 50px 12px 20px;
+            background: rgba(15, 15, 26, 0.7);
+            border: 1px solid rgba(139, 92, 246, 0.25);
+            border-radius: 16px;
+            color: #e9d5ff;
+            font-size: 14px;
+            outline: none;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(20px);
+            box-shadow: 
+                0 4px 20px rgba(0, 0, 0, 0.2),
+                inset 0 1px 0 rgba(139, 92, 246, 0.1);
+        }
+
+        .search-input:focus {
+            border-color: #8b5cf6;
+            box-shadow: 
+                0 0 0 2px rgba(139, 92, 246, 0.12), 
+                0 8px 28px rgba(139, 92, 246, 0.25),
+                inset 0 1px 0 rgba(139, 92, 246, 0.15);
+            background: rgba(15, 15, 26, 0.9);
+        }
+
+        .search-input::placeholder {
+            color: #a78bfa;
+            opacity: 0.4;
+        }
+
+        .search-icon {
+            position: absolute;
+            right: 18px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #a78bfa;
+            pointer-events: none;
+            opacity: 0.6;
+            filter: drop-shadow(0 0 6px rgba(139, 92, 246, 0.4));
+            animation: iconGlow 3s ease-in-out infinite;
+        }
+
+        .search-icon svg {
+            width: 18px;
+            height: 18px;
+        }
+
+        @keyframes iconGlow {
+            0%, 100% { opacity: 0.6; }
+            50% { opacity: 0.9; }
+        }
+
+        /* Customize Button */
+        .customize-btn {
+            position: fixed;
+            bottom: 32px;
+            right: 32px;
+            width: 56px;
+            height: 56px;
+            background: linear-gradient(135deg, #8b5cf6, #6366f1);
+            border: 2px solid rgba(139, 92, 246, 0.5);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 
+                0 8px 32px rgba(139, 92, 246, 0.4),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2);
+            z-index: 100;
+            animation: pulse 3s ease-in-out infinite;
+        }
+
+        .customize-btn:hover {
+            transform: scale(1.1) rotate(15deg);
+            box-shadow: 
+                0 12px 48px rgba(139, 92, 246, 0.6),
+                inset 0 1px 0 rgba(255, 255, 255, 0.3);
+        }
+
+        .customize-btn:active {
+            transform: scale(0.95) rotate(15deg);
+        }
+
+        .customize-btn svg {
+            width: 24px;
+            height: 24px;
+            color: white;
+            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                box-shadow: 
+                    0 8px 32px rgba(139, 92, 246, 0.4),
+                    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+            }
+            50% {
+                box-shadow: 
+                    0 8px 32px rgba(139, 92, 246, 0.6),
+                    0 0 0 8px rgba(139, 92, 246, 0.1),
+                    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+            }
+        }
+
+        /* Widget Container - Hidden by default */
+        .widgets-container {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 90%;
+            max-width: 900px;
+            max-height: 80vh;
+            background: rgba(15, 15, 26, 0.95);
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            border-radius: 24px;
+            backdrop-filter: blur(24px);
+            box-shadow: 0 24px 64px rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            display: none;
+            flex-direction: column;
+            animation: slideUp 0.3s ease-out;
+        }
+
+        .widgets-container.active {
+            display: flex;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translate(-50%, -40%);
+            }
+            to {
+                opacity: 1;
+                transform: translate(-50%, -50%);
+            }
+        }
+
+        .widget-header {
+            padding: 24px 28px;
+            border-bottom: 1px solid rgba(139, 92, 246, 0.2);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .widget-header h2 {
+            font-size: 24px;
+            font-weight: 600;
+            background: linear-gradient(135deg, #e9d5ff, #a78bfa);
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .close-btn {
+            width: 36px;
+            height: 36px;
+            background: rgba(139, 92, 246, 0.1);
+            border: 1px solid rgba(139, 92, 246, 0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            color: #a78bfa;
+        }
+
+        .close-btn:hover {
+            background: rgba(139, 92, 246, 0.2);
+            border-color: #8b5cf6;
+            transform: rotate(90deg);
+        }
+
+        .widget-content {
+            padding: 28px;
+            overflow-y: auto;
+            flex: 1;
+        }
+
+        .widget-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            gap: 16px;
+        }
+
+        .widget-card {
+            background: rgba(26, 26, 46, 0.6);
+            border: 2px solid rgba(139, 92, 246, 0.2);
+            border-radius: 16px;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .widget-card:hover {
+            border-color: #8b5cf6;
+            transform: translateY(-4px);
+            box-shadow: 0 8px 24px rgba(139, 92, 246, 0.3);
+        }
+
+        .widget-icon {
+            width: 48px;
+            height: 48px;
+            margin: 0 auto 12px;
+            background: linear-gradient(135deg, #8b5cf6, #6366f1);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+        }
+
+        .widget-name {
+            font-size: 14px;
+            font-weight: 500;
+            color: #e9d5ff;
+            margin-bottom: 4px;
+        }
+
+        .widget-desc {
+            font-size: 12px;
+            color: #a78bfa;
+            opacity: 0.7;
+        }
+
+        .coming-soon {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .coming-soon::after {
+            content: 'Coming Soon';
+            display: block;
+            margin-top: 8px;
+            font-size: 10px;
+            color: #8b5cf6;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 0 30px;
+            }
+            .time {
+                font-size: 64px;
+            }
+            .search-container {
+                max-width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="time-widget">
+            <div class="time" id="time">00:00</div>
+            <div class="date" id="date">Monday, January 1</div>
+        </div>
+
+        <div class="search-container">
+            <div class="search-box">
+                <input 
+                    type="text" 
+                    class="search-input" 
+                    id="searchInput"
+                    placeholder="Search or enter website address"
+                    autofocus
+                />
+                <svg class="search-icon" width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+                    <path d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" fill="currentColor"/>
+                </svg>
+            </div>
+        </div>
+    </div>
+
+    <!-- Customize Button -->
+    <div class="customize-btn" onclick="toggleWidgetPanel()">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 20h9"/>
+            <path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>
+        </svg>
+    </div>
+
+    <!-- Widget Panel -->
+    <div class="widgets-container" id="widgetPanel">
+        <div class="widget-header">
+            <h2>Customize Your Browser</h2>
+            <div class="close-btn" onclick="toggleWidgetPanel()">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+            </div>
+        </div>
+        <div class="widget-content">
+            <div class="widget-grid">
+                <!-- Clock Widget -->
+                <div class="widget-card" onclick="addWidget('clock')">
+                    <div class="widget-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <polyline points="12 6 12 12 16 14"></polyline>
+                        </svg>
+                    </div>
+                    <div class="widget-name">Clock</div>
+                    <div class="widget-desc">Current Time</div>
+                </div>
+
+                <!-- Weather Widget -->
+                <div class="widget-card coming-soon">
+                    <div class="widget-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"></path>
+                        </svg>
+                    </div>
+                    <div class="widget-name">Weather</div>
+                    <div class="widget-desc">Local Weather</div>
+                </div>
+
+                <!-- Notes Widget -->
+                <div class="widget-card coming-soon">
+                    <div class="widget-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                            <polyline points="14 2 14 8 20 8"></polyline>
+                            <line x1="16" y1="13" x2="8" y2="13"></line>
+                            <line x1="16" y1="17" x2="8" y2="17"></line>
+                            <polyline points="10 9 9 9 8 9"></polyline>
+                        </svg>
+                    </div>
+                    <div class="widget-name">Quick Notes</div>
+                    <div class="widget-desc">Sticky Notes</div>
+                </div>
+
+                <!-- Calendar Widget -->
+                <div class="widget-card coming-soon">
+                    <div class="widget-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                            <line x1="16" y1="2" x2="16" y2="6"></line>
+                            <line x1="8" y1="2" x2="8" y2="6"></line>
+                            <line x1="3" y1="10" x2="21" y2="10"></line>
+                        </svg>
+                    </div>
+                    <div class="widget-name">Calendar</div>
+                    <div class="widget-desc">Daily Planner</div>
+                </div>
+
+                <!-- Timer Widget -->
+                <div class="widget-card coming-soon">
+                    <div class="widget-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <polyline points="12 6 12 12 16 14"></polyline>
+                        </svg>
+                    </div>
+                    <div class="widget-name">Timer</div>
+                    <div class="widget-desc">Countdown</div>
+                </div>
+
+                <!-- Calculator Widget -->
+                <div class="widget-card coming-soon">
+                    <div class="widget-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="4" y="2" width="16" height="20" rx="2" ry="2"></rect>
+                            <line x1="8" y1="6" x2="16" y2="6"></line>
+                            <line x1="8" y1="10" x2="16" y2="10"></line>
+                            <line x1="8" y1="14" x2="16" y2="14"></line>
+                            <line x1="8" y1="18" x2="16" y2="18"></line>
+                        </svg>
+                    </div>
+                    <div class="widget-name">Calculator</div>
+                    <div class="widget-desc">Quick Math</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Toggle Widget Panel
+        function toggleWidgetPanel() {
+            const panel = document.getElementById('widgetPanel');
+            panel.classList.toggle('active');
+        }
+
+        // Add Widget (placeholder for now)
+        function addWidget(type) {
+            if (type === 'clock') {
+                alert('Clock widget is already displayed! More widgets coming soon.');
+            } else {
+                alert('This widget is coming soon! Stay tuned for updates.');
+            }
+        }
+
+        // Close panel on ESC key
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                const panel = document.getElementById('widgetPanel');
+                if (panel.classList.contains('active')) {
+                    panel.classList.remove('active');
+                }
+            }
+        });
+
+        // Update time
+        function updateTime() {
+            const now = new Date();
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            document.getElementById('time').textContent = `${hours}:${minutes}`;
+
+            const options = { weekday: 'long', month: 'long', day: 'numeric' };
+            document.getElementById('date').textContent = now.toLocaleDateString('en-US', options);
+        }
+
+        updateTime();
+        setInterval(updateTime, 1000);
+
+        // Handle search
+        document.getElementById('searchInput').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                const query = e.target.value.trim();
+                if (query) {
+                    if (query.includes('.') && !query.includes(' ')) {
+                        // Looks like a URL
+                        window.location.href = query.startsWith('http') ? query : 'https://' + query;
+                    } else {
+                        // Search query
+                        window.location.href = 'https://www.google.com/search?q=' + encodeURIComponent(query);
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>

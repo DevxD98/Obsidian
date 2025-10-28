@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self' https://fonts.googleapis.com https://fonts.gstatic.com data:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; script-src 'self' 'unsafe-inline'; img-src 'self' data: https:;">
+    <title>Obsidian Browser</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Main Browser Container -->
+    <div class="browser-container">
+        
+        <!-- Tab Bar -->
+        <div class="tab-bar">
+            <button class="new-tab-btn" id="newTabBtn" title="New Tab">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+                    <path d="M8 3v10M3 8h10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+            </button>
+            <div class="tabs-container" id="tabsContainer">
+                <!-- Tabs will be added dynamically -->
+            </div>
+        </div>
+
+        <!-- Navigation Bar -->
+        <div class="nav-bar">
+            <div class="nav-controls">
+                <button class="nav-btn" id="backBtn" title="Back" disabled>
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+                        <path d="M12 4l-6 6 6 6" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </button>
+                <button class="nav-btn" id="forwardBtn" title="Forward" disabled>
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+                        <path d="M8 4l6 6-6 6" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </button>
+                <button class="nav-btn" id="refreshBtn" title="Refresh">
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+                        <path d="M4 10c0-3.314 2.686-6 6-6 1.657 0 3.157.672 4.243 1.757L17 3v5h-5l2.071-2.071C13.157 5.015 11.657 4.5 10 4.5c-3.038 0-5.5 2.462-5.5 5.5s2.462 5.5 5.5 5.5c2.03 0 3.802-1.101 4.757-2.737" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+                    </svg>
+                </button>
+                <button class="nav-btn" id="homeBtn" title="Home">
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+                        <path d="M3 10l7-7 7 7M5 10v7h3v-4h4v4h3v-7" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </button>
+            </div>
+
+            <div class="address-bar-container">
+                <div class="address-bar">
+                    <div class="security-indicator" id="securityIndicator" title="Connection is secure">
+                        <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+                            <path d="M8 1L3 3v4c0 3.5 2.5 6.5 5 7 2.5-.5 5-3.5 5-7V3l-5-2z" stroke="currentColor" stroke-width="1.5" fill="none"/>
+                            <path d="M6 8l1.5 1.5L11 6" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </div>
+                    <input 
+                        type="text" 
+                        class="url-input" 
+                        id="urlInput" 
+                        placeholder="Search or enter website address"
+                        spellcheck="false"
+                        autocomplete="off"
+                    />
+                    <button class="bookmark-btn" id="bookmarkBtn" title="Bookmark this page">
+                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                            <path d="M4 2h8a1 1 0 011 1v11l-5-3-5 3V3a1 1 0 011-1z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+
+            <div class="nav-actions">
+                <button class="action-btn" id="downloadsBtn" title="Downloads">
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+                        <path d="M10 3v8m0 0l-3-3m3 3l3-3M4 13v3a1 1 0 001 1h10a1 1 0 001-1v-3" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    <span class="download-badge" id="downloadBadge">0</span>
+                </button>
+                <button class="action-btn" id="menuBtn" title="Menu">
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+                        <path d="M4 6h12M4 10h12M4 14h12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                    </svg>
+                </button>
+            </div>
+        </div>
+
+        <!-- Web Views Container -->
+        <div class="webviews-container" id="webviewsContainer">
+            <!-- WebViews will be added dynamically -->
+        </div>
+
+        <!-- Downloads Panel -->
+        <div class="downloads-panel hidden" id="downloadsPanel">
+            <div class="panel-header">
+                <h3>Downloads</h3>
+                <button class="close-panel-btn" id="closeDownloadsBtn">×</button>
+            </div>
+            <div class="downloads-list" id="downloadsList">
+                <div class="empty-state">No downloads yet</div>
+            </div>
+        </div>
+
+        <!-- Menu Panel -->
+        <div class="menu-panel hidden" id="menuPanel">
+            <div class="menu-item" id="newWindowBtn">
+                <svg width="18" height="18" viewBox="0 0 18 18" fill="currentColor">
+                    <rect x="2" y="2" width="14" height="14" rx="2" stroke="currentColor" stroke-width="1.5" fill="none"/>
+                </svg>
+                <span>New Window</span>
+            </div>
+            <div class="menu-item" id="newPrivateBtn">
+                <svg width="18" height="18" viewBox="0 0 18 18" fill="currentColor">
+                    <path d="M9 1L4 3v3c0 3 2 5.5 5 6 3-.5 5-3 5-6V3l-5-2z" stroke="currentColor" stroke-width="1.5" fill="none"/>
+                </svg>
+                <span>New Private Window</span>
+            </div>
+            <div class="menu-divider"></div>
+            <div class="menu-item" id="bookmarksBtn">
+                <svg width="18" height="18" viewBox="0 0 18 18" fill="currentColor">
+                    <path d="M5 2h8a1 1 0 011 1v12l-5-3-5 3V3a1 1 0 011-1z" stroke="currentColor" stroke-width="1.5" fill="none"/>
+                </svg>
+                <span>Bookmarks</span>
+            </div>
+            <div class="menu-item" id="historyBtn">
+                <svg width="18" height="18" viewBox="0 0 18 18" fill="currentColor">
+                    <circle cx="9" cy="9" r="7" stroke="currentColor" stroke-width="1.5" fill="none"/>
+                    <path d="M9 5v4l3 2" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+                </svg>
+                <span>History</span>
+            </div>
+            <div class="menu-item" id="downloadsMenuBtn">
+                <svg width="18" height="18" viewBox="0 0 18 18" fill="currentColor">
+                    <path d="M9 3v8m0 0l-3-3m3 3l3-3M4 13v2a1 1 0 001 1h8a1 1 0 001-1v-2" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <span>Downloads</span>
+            </div>
+            <div class="menu-divider"></div>
+            <div class="menu-item" id="settingsBtn">
+                <svg width="18" height="18" viewBox="0 0 18 18" fill="currentColor">
+                    <circle cx="9" cy="9" r="2" stroke="currentColor" stroke-width="1.5" fill="none"/>
+                    <path d="M9 1v2m0 12v2M17 9h-2M3 9H1m13.5-5.5l-1.4 1.4m-9.2 9.2l-1.4 1.4m11-1.4l-1.4-1.4M4.9 4.9L3.5 3.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                </svg>
+                <span>Settings</span>
+            </div>
+        </div>
+
+        <!-- Bookmarks Panel -->
+        <div class="side-panel hidden" id="bookmarksPanel">
+            <div class="panel-header">
+                <h3>📚 Bookmarks</h3>
+                <button class="close-panel-btn" id="closeBookmarksBtn">×</button>
+            </div>
+            <div class="panel-search">
+                <input type="text" placeholder="Search bookmarks..." id="bookmarkSearch" class="search-input">
+            </div>
+            <div class="panel-content" id="bookmarksList">
+                <div class="empty-state">No bookmarks yet. Press the bookmark button in the address bar to add pages.</div>
+            </div>
+        </div>
+
+        <!-- History Panel -->
+        <div class="side-panel hidden" id="historyPanel">
+            <div class="panel-header">
+                <h3>🕐 History</h3>
+                <button class="close-panel-btn" id="closeHistoryBtn">×</button>
+            </div>
+            <div class="panel-search">
+                <input type="text" placeholder="Search history..." id="historySearch" class="search-input">
+            </div>
+            <div class="panel-content" id="historyList">
+                <div class="empty-state">No history yet</div>
+            </div>
+        </div>
+
+        <!-- Loading Indicator -->
+        <div class="loading-bar hidden" id="loadingBar"></div>
+    </div>
+
+    <script src="browser.js"></script>
+</body>
+</html>
