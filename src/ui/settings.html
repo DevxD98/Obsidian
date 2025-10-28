@@ -5,6 +5,23 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Settings - Obsidian</title>
     <style>
+        /* Dot Matrix Fonts */
+        @font-face {
+            font-family: 'DotMatrix';
+            src: url('../../assets/fonts/DOTMATRI.TTF') format('truetype');
+            font-weight: 400;
+            font-style: normal;
+            font-display: swap;
+        }
+
+        @font-face {
+            font-family: 'DotMatrix';
+            src: url('../../assets/fonts/DOTMBold.TTF') format('truetype');
+            font-weight: 700;
+            font-style: normal;
+            font-display: swap;
+        }
+
         * {
             margin: 0;
             padding: 0;
@@ -38,6 +55,21 @@
             color: #f0f0f5;
             min-height: 100vh;
             padding: 48px 32px 64px;
+        }
+
+        /* Dot Matrix Font Mode */
+        body.dot-matrix-font,
+        body.dot-matrix-font * {
+            font-family: 'DotMatrix', monospace !important;
+            letter-spacing: 1px;
+        }
+
+        body.dot-matrix-font h1,
+        body.dot-matrix-font h2,
+        body.dot-matrix-font h3,
+        body.dot-matrix-font .settings-title,
+        body.dot-matrix-font .section-title {
+            font-weight: 700;
         }
 
         .container {
@@ -310,9 +342,9 @@
         <div class="header">
             <div class="header-title">
                 <div class="header-icon">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/>
                         <circle cx="12" cy="12" r="3"/>
-                        <path d="M12 1v6m0 6v6m5.2-14.2l-4.3 4.3m0 5.8l4.3 4.3M23 12h-6m-6 0H1m14.2 5.2l-4.3-4.3m0-5.8l-4.3-4.3"/>
                     </svg>
                 </div>
                 <h1>Settings</h1>
@@ -337,6 +369,14 @@
                     <div class="setting-description">Use dark theme for the browser interface</div>
                 </div>
                 <div class="toggle active" id="darkModeToggle"></div>
+            </div>
+
+            <div class="setting-item">
+                <div class="setting-info">
+                    <div class="setting-label">Dot Matrix Font</div>
+                    <div class="setting-description">Use retro dot matrix font for browser UI</div>
+                </div>
+                <div class="toggle" id="dotMatrixToggle"></div>
             </div>
 
             <div class="setting-item">
@@ -470,7 +510,16 @@
 
         <!-- About -->
         <div class="section">
-            <div class="section-title">ℹ️ About</div>
+            <div class="section-header">
+                <div class="section-icon">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"/>
+                        <path d="M12 16v-4"/>
+                        <path d="M12 8h.01"/>
+                    </svg>
+                </div>
+                <div class="section-title">About</div>
+            </div>
             
             <div class="setting-item">
                 <div class="setting-info">
@@ -498,6 +547,20 @@
                 const settingId = toggle.id;
                 const isActive = toggle.classList.contains('active');
                 localStorage.setItem(settingId, isActive);
+                
+                // Apply dot matrix font if this is the font toggle
+                if (settingId === 'dotMatrixToggle') {
+                    console.log('Dot Matrix Toggle:', isActive);
+                    if (isActive) {
+                        document.body.classList.add('dot-matrix-font');
+                        document.body.style.fontFamily = "'DotMatrix', monospace";
+                        console.log('Added dot-matrix-font class');
+                    } else {
+                        document.body.classList.remove('dot-matrix-font');
+                        document.body.style.fontFamily = '';
+                        console.log('Removed dot-matrix-font class');
+                    }
+                }
             });
         });
 
@@ -509,6 +572,8 @@
                 const theme = card.dataset.theme;
                 localStorage.setItem('theme', theme);
                 document.getElementById('themeSelect').value = theme;
+                // Apply theme immediately
+                document.documentElement.setAttribute('data-theme', theme);
             });
         });
 
@@ -518,23 +583,38 @@
             document.querySelectorAll('.theme-card').forEach(card => {
                 card.classList.toggle('active', card.dataset.theme === theme);
             });
+            // Apply theme immediately
+            document.documentElement.setAttribute('data-theme', theme);
         });
 
         // Load saved settings
         window.addEventListener('load', () => {
+            // Load and apply theme
+            const savedTheme = localStorage.getItem('theme') || 'obsidian';
+            document.documentElement.setAttribute('data-theme', savedTheme);
+            document.getElementById('themeSelect').value = savedTheme;
+            document.querySelectorAll('.theme-card').forEach(card => {
+                card.classList.toggle('active', card.dataset.theme === savedTheme);
+            });
+            
+            // Load and apply dot matrix font
+            const dotMatrixEnabled = localStorage.getItem('dotMatrixToggle') === 'true';
+            console.log('Loading dot matrix setting:', dotMatrixEnabled);
+            console.log('LocalStorage value:', localStorage.getItem('dotMatrixToggle'));
+            
+            if (dotMatrixEnabled) {
+                document.body.classList.add('dot-matrix-font');
+                document.body.style.fontFamily = "'DotMatrix', monospace";
+                console.log('Applied dot-matrix-font class on load');
+                console.log('Body classes:', document.body.className);
+            }
+            
             // Load toggles
             document.querySelectorAll('.toggle').forEach(toggle => {
                 const saved = localStorage.getItem(toggle.id);
                 if (saved !== null) {
                     toggle.classList.toggle('active', saved === 'true');
                 }
-            });
-
-            // Load theme
-            const savedTheme = localStorage.getItem('theme') || 'obsidian';
-            document.getElementById('themeSelect').value = savedTheme;
-            document.querySelectorAll('.theme-card').forEach(card => {
-                card.classList.toggle('active', card.dataset.theme === savedTheme);
             });
 
             // Load search engine

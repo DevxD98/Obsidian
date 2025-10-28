@@ -6,7 +6,35 @@ class TabManager {
         this.tabIdCounter = 0;
         this.bookmarks = this.loadBookmarks();
         this.history = this.loadHistory();
+        this.initTheme();
         this.init();
+    }
+
+    initTheme() {
+        // Apply saved theme on load
+        const savedTheme = localStorage.getItem('theme') || 'obsidian';
+        document.documentElement.setAttribute('data-theme', savedTheme);
+        
+        // Apply dot matrix font if enabled
+        const dotMatrixEnabled = localStorage.getItem('dotMatrixToggle') === 'true';
+        if (dotMatrixEnabled) {
+            document.body.classList.add('dot-matrix-font');
+        }
+        
+        // Listen for theme changes
+        window.addEventListener('storage', (e) => {
+            if (e.key === 'theme') {
+                const newTheme = e.newValue || 'obsidian';
+                document.documentElement.setAttribute('data-theme', newTheme);
+            }
+            if (e.key === 'dotMatrixToggle') {
+                if (e.newValue === 'true') {
+                    document.body.classList.add('dot-matrix-font');
+                } else {
+                    document.body.classList.remove('dot-matrix-font');
+                }
+            }
+        });
     }
 
     loadBookmarks() {
@@ -222,8 +250,14 @@ class TabManager {
         const tabElement = document.createElement('div');
         tabElement.className = 'tab';
         tabElement.dataset.tabId = tabId;
+        
+        // Use Obsidian logo for home tab, purple dot for others
+        const faviconSrc = isNewTab 
+            ? '../../assets/logo.png'
+            : "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><circle cx='8' cy='8' r='7' fill='%238b5cf6'/></svg>";
+        
         tabElement.innerHTML = `
-            <img class="tab-favicon" src="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><circle cx='8' cy='8' r='7' fill='%238b5cf6'/></svg>" alt="">
+            <img class="tab-favicon" src="${faviconSrc}" alt="">
             <span class="tab-title">${tabTitle}</span>
             <button class="tab-close">×</button>
         `;
