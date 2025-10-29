@@ -6,8 +6,118 @@ class TabManager {
         this.tabIdCounter = 0;
         this.bookmarks = this.loadBookmarks();
         this.history = this.loadHistory();
+        this.lastSecurityWarning = null;
         this.initTheme();
         this.init();
+    }
+
+    isBlockedProtocol(url = '') {
+        return /^(javascript:|data:|file:|about:|chrome:|smb:|ftp:|ssh:|tel:|mailto:)/i.test(url.trim());
+    }
+
+    isSafeExternalUrl(url) {
+        if (!url) {
+            return false;
+        }
+
+        if (this.isBlockedProtocol(url)) {
+            return false;
+        }
+
+        try {
+            const parsed = new URL(url);
+            if (parsed.protocol === 'https:') {
+                return true;
+            }
+            if (parsed.protocol === 'http:') {
+                return true;
+            }
+        } catch (_) {
+            return false;
+        }
+
+        return false;
+    }
+
+    isTrustedLocalUrl(url) {
+        if (!url) {
+            return false;
+        }
+
+        try {
+            const parsed = new URL(url);
+            if (parsed.protocol !== 'file:') {
+                return false;
+            }
+
+            const baseDir = new URL('.', window.location.href);
+            return decodeURIComponent(parsed.href).startsWith(decodeURIComponent(baseDir.href));
+        } catch (_) {
+            return false;
+        }
+    }
+
+    isTrustedNavigationUrl(url, tab) {
+        if (!url) {
+            return false;
+        }
+
+        if (this.isSafeExternalUrl(url)) {
+            return true;
+        }
+
+        if (this.isTrustedLocalUrl(url)) {
+            return true;
+        }
+
+        if (tab && (tab.isNewTab || tab.isSettings || tab.isHistory)) {
+            return true;
+        }
+
+        return false;
+    }
+
+    async resolveNavigationTarget(input) {
+        try {
+            const target = await window.electronAPI.navigate(input);
+            return this.isSafeExternalUrl(target) ? target : null;
+        } catch (err) {
+            console.warn('Navigation sanitization failed:', err);
+            return null;
+        }
+    }
+
+    buildLocalPageUrl(relativePath) {
+        const base = new URL('.', window.location.href);
+        return new URL(relativePath, base).toString();
+    }
+
+    showSecurityWarning(message) {
+        if (!message) {
+            return;
+        }
+
+        if (this.lastSecurityWarning === message) {
+            return;
+        }
+
+        this.lastSecurityWarning = message;
+
+        const securityIndicator = document.getElementById('securityIndicator');
+        if (securityIndicator) {
+            securityIndicator.classList.add('insecure');
+            securityIndicator.title = message;
+        }
+
+        console.warn(message);
+
+        setTimeout(() => {
+            this.lastSecurityWarning = null;
+            if (securityIndicator && securityIndicator.title === message) {
+                securityIndicator.title = 'Connection status';
+                securityIndicator.classList.remove('insecure');
+            }
+        }, 4000);
     }
 
     initTheme() {
@@ -57,8 +167,17 @@ class TabManager {
     }
 
     addToHistory(url, title) {
-        // Don't add local pages or file:// URLs
-        if (url.includes('newtab.html') || url.includes('settings.html') || url.startsWith('file://') || url === '') return;
+        // Don't add local pages or unsafe URLs
+        if (
+            url.includes('newtab.html') ||
+            url.includes('settings.html') ||
+            url.includes('history.html') ||
+            url.startsWith('file://') ||
+            url === '' ||
+            !this.isSafeExternalUrl(url)
+        ) {
+            return;
+        }
         
         // Remove if already exists
         this.history = this.history.filter(item => item.url !== url);
@@ -135,7 +254,7 @@ class TabManager {
         });
 
         document.getElementById('historyBtn').addEventListener('click', () => {
-            this.toggleSidePanel('historyPanel');
+            this.createTab('history.html');
             document.getElementById('menuPanel').classList.add('hidden');
         });
 
@@ -182,6 +301,10 @@ class TabManager {
             this.completeDownload(data);
         });
 
+        window.electronAPI.onDownloadError((data) => {
+            this.handleDownloadError(data);
+        });
+
         // Close panels when clicking outside
         document.addEventListener('click', (e) => {
             const downloadsPanel = document.getElementById('downloadsPanel');
@@ -219,10 +342,6 @@ class TabManager {
             const chromeHeight = tabBar.offsetHeight + navBar.offsetHeight;
             const availableHeight = window.innerHeight - chromeHeight;
             
-            console.log('Window height:', window.innerHeight);
-            console.log('Chrome height:', chromeHeight);
-            console.log('Available height:', availableHeight);
-            
             // Set explicit height on container
             container.style.height = availableHeight + 'px';
             container.style.minHeight = availableHeight + 'px';
@@ -238,14 +357,26 @@ class TabManager {
     }
 
     async createTab(url = 'newtab.html') {
-        const tabId = ++this.tabIdCounter;
-        
         // Determine if this is the new tab page or settings
         const isNewTab = url === 'newtab.html';
         const isSettings = url === 'settings.html';
-        const isLocalPage = isNewTab || isSettings;
-        const tabTitle = isNewTab ? 'New Tab' : isSettings ? 'Settings' : 'Loading...';
-        
+        const isHistory = url === 'history.html';
+        const isLocalPage = isNewTab || isSettings || isHistory;
+        const tabTitle = isNewTab ? 'New Tab' : isSettings ? 'Settings' : isHistory ? 'History' : 'Loading...';
+
+        let initialSrc;
+        if (isLocalPage) {
+            initialSrc = this.buildLocalPageUrl(url);
+        } else {
+            initialSrc = await this.resolveNavigationTarget(url);
+            if (!initialSrc) {
+                this.showSecurityWarning('Navigation blocked: unsafe destination.');
+                return null;
+            }
+        }
+
+        const tabId = ++this.tabIdCounter;
+
         // Create tab element
         const tabElement = document.createElement('div');
         tabElement.className = 'tab';
@@ -266,40 +397,23 @@ class TabManager {
         const webview = document.createElement('webview');
         webview.className = 'webview';
         webview.dataset.tabId = tabId;
-        
-        // Set the source - if it's local page, construct proper file URL
-        if (isLocalPage) {
-            // Get the directory of the current page
-            const currentDir = window.location.href.substring(0, window.location.href.lastIndexOf('/') + 1);
-            webview.src = currentDir + url;
-            console.log('Loading local page:', webview.src);
-        } else {
-            // Make sure external URLs have a protocol
-            if (!url.startsWith('http://') && !url.startsWith('https://') && !url.startsWith('file://')) {
-                webview.src = 'https://' + url;
-            } else {
-                webview.src = url;
-            }
-            webview.setAttribute('allowpopups', '');
-        }
-        
+        webview.src = initialSrc;
         webview.setAttribute('partition', 'persist:obsidian');
-        
-        // Security: Disable node integration in webview
         webview.setAttribute('nodeintegration', 'false');
-        webview.setAttribute('webpreferences', 'contextIsolation=true,webSecurity=false');
+        webview.setAttribute('webpreferences', 'contextIsolation=yes,sandbox=yes,webSecurity=yes');
+        webview.setAttribute('disableblinkfeatures', 'Auxclick');
 
-        // Tab object
         const tab = {
             id: tabId,
             element: tabElement,
             webview: webview,
             title: tabTitle,
-            url: url,
+            url: initialSrc,
             favicon: null,
             isBookmarked: false,
             isNewTab: isNewTab,
-            isSettings: isSettings
+            isSettings: isSettings,
+            isHistory: isHistory
         };
 
         this.tabs.push(tab);
@@ -332,15 +446,32 @@ class TabManager {
     setupWebviewEvents(tab) {
         const webview = tab.webview;
 
+        const handleUnsafeNavigation = (blockedUrl) => {
+            this.showSecurityWarning(`Navigation blocked: ${blockedUrl}`);
+        };
+
         // Page loaded
         webview.addEventListener('did-finish-load', () => {
-            console.log('Webview loaded:', tab.url);
             this.updateTabInfo(tab);
         });
 
         // Failed to load
         webview.addEventListener('did-fail-load', (e) => {
             console.error('Failed to load:', tab.url, e);
+        });
+
+        webview.addEventListener('will-navigate', (e) => {
+            if (!this.isTrustedNavigationUrl(e.url, tab)) {
+                e.preventDefault();
+                handleUnsafeNavigation(e.url);
+            }
+        });
+
+        webview.addEventListener('will-redirect', (e) => {
+            if (!this.isTrustedNavigationUrl(e.url, tab)) {
+                e.preventDefault();
+                handleUnsafeNavigation(e.url);
+            }
         });
 
         // Page title updated
@@ -367,10 +498,22 @@ class TabManager {
 
         // Navigation
         webview.addEventListener('did-navigate', () => {
+            const currentUrl = webview.getURL();
+            if (!this.isTrustedNavigationUrl(currentUrl, tab)) {
+                webview.stop();
+                handleUnsafeNavigation(currentUrl);
+                return;
+            }
             this.updateTabInfo(tab);
         });
 
         webview.addEventListener('did-navigate-in-page', () => {
+            const currentUrl = webview.getURL();
+            if (!this.isTrustedNavigationUrl(currentUrl, tab)) {
+                webview.stop();
+                handleUnsafeNavigation(currentUrl);
+                return;
+            }
             this.updateTabInfo(tab);
         });
 
@@ -395,9 +538,14 @@ class TabManager {
         });
 
         // New window (open in new tab)
-        webview.addEventListener('new-window', (e) => {
+        webview.addEventListener('new-window', async (e) => {
             e.preventDefault();
-            this.createTab(e.url);
+            const target = await this.resolveNavigationTarget(e.url);
+            if (!target) {
+                handleUnsafeNavigation(e.url);
+                return;
+            }
+            this.createTab(target);
         });
 
         // Certificate error (security)
@@ -418,13 +566,13 @@ class TabManager {
         tab.url = webview.getURL();
         
         // Check if it's a local page
-        const isLocalPage = tab.url.includes('newtab.html') || tab.url.includes('settings.html') || tab.isNewTab || tab.isSettings;
+        const isLocalPage = tab.url.includes('newtab.html') || tab.url.includes('settings.html') || tab.url.includes('history.html') || tab.isNewTab || tab.isSettings || tab.isHistory;
         
         if (tab.id === this.activeTabId) {
             // Update address bar - show empty for local pages
             if (isLocalPage) {
                 document.getElementById('urlInput').value = '';
-                document.getElementById('urlInput').placeholder = tab.isSettings ? 'Settings' : 'Search or enter website address';
+                document.getElementById('urlInput').placeholder = tab.isSettings ? 'Settings' : tab.isHistory ? 'History' : 'Search or enter website address';
             } else {
                 document.getElementById('urlInput').value = tab.url;
             }
@@ -520,7 +668,12 @@ class TabManager {
         const tab = this.getActiveTab();
         if (!tab) return;
 
-        const url = await window.electronAPI.navigate(input);
+        const url = await this.resolveNavigationTarget(input);
+        if (!url) {
+            this.showSecurityWarning('Navigation blocked: unsafe destination.');
+            return;
+        }
+
         tab.webview.src = url;
     }
 
@@ -548,7 +701,7 @@ class TabManager {
     goHome() {
         const tab = this.getActiveTab();
         if (tab) {
-            tab.webview.src = 'newtab.html';
+            tab.webview.src = this.buildLocalPageUrl('newtab.html');
         }
     }
 
@@ -782,6 +935,23 @@ class TabManager {
             status.textContent = 'Complete ✓';
             status.style.color = 'var(--accent-green)';
         }
+    }
+
+    handleDownloadError(data = {}) {
+        const downloadItem = data.fileName ? document.querySelector(`[data-filename="${data.fileName}"]`) : null;
+        if (downloadItem) {
+            const status = downloadItem.querySelector('.download-status');
+            const progressBar = downloadItem.querySelector('.download-progress-bar');
+            if (status) {
+                status.textContent = 'Blocked';
+                status.style.color = '#f87171';
+            }
+            if (progressBar) {
+                progressBar.style.background = '#f87171';
+            }
+        }
+
+        this.showSecurityWarning(data.message || 'Download blocked or failed.');
     }
 }
 

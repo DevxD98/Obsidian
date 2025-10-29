@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>History</title>
+    <style>
+        /* Dot Matrix Fonts */
+        @font-face {
+            font-family: 'DotMatrix';
+            src: url('../../assets/fonts/DOTMATRI.TTF') format('truetype');
+            font-weight: 400;
+            font-style: normal;
+            font-display: swap;
+        }
+
+        @font-face {
+            font-family: 'DotMatrix';
+            src: url('../../assets/fonts/DOTMBold.TTF') format('truetype');
+            font-weight: 700;
+            font-style: normal;
+            font-display: swap;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            height: 100%;
+            width: 100%;
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden;
+            overflow-y: auto;
+            background: #0a0a14;
+        }
+
+        /* Hide scrollbar but keep functionality */
+        ::-webkit-scrollbar {
+            width: 0;
+            height: 0;
+            display: none;
+        }
+
+        html {
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', sans-serif;
+            background: #0a0a14;
+            color: #f0f0f5;
+            padding: 60px 80px;
+            position: relative;
+            width: 100%;
+            max-width: 100vw;
+            overflow-x: hidden;
+        }
+
+        /* CSS Variables for theming */
+        :root {
+            --gradient-start: rgba(139, 92, 246, 0.15);
+            --theme-text-1: #e9d5ff;
+            --theme-text-2: #a78bfa;
+            --theme-text-3: #8b5cf6;
+            --theme-glow-light: rgba(139, 92, 246, 0.6);
+            --theme-glow-strong: rgba(139, 92, 246, 0.9);
+            --bg-secondary: rgba(15, 15, 26, 0.7);
+            --border-color: rgba(139, 92, 246, 0.25);
+        }
+
+        /* Obsidian-inspired animated background */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 120%;
+            height: 120%;
+            background: radial-gradient(circle at center, var(--gradient-start) 0%, transparent 70%);
+            pointer-events: none;
+            z-index: 0;
+            animation: pulseGlow 8s ease-in-out infinite;
+        }
+
+        @keyframes pulseGlow {
+            0%, 100% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+            50% { opacity: 0.8; transform: translate(-50%, -50%) scale(1.1); }
+        }
+
+        /* Dot Matrix Font Mode */
+        body.dot-matrix-font,
+        body.dot-matrix-font * {
+            font-family: 'DotMatrix', monospace !important;
+            letter-spacing: 1px;
+        }
+
+        body.dot-matrix-font h1,
+        body.dot-matrix-font h2,
+        body.dot-matrix-font h3 {
+            font-weight: 700;
+        }
+
+        .container {
+            position: relative;
+            z-index: 2;
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: left;
+            margin-bottom: 60px;
+            position: relative;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: -60px;
+            transform: translateY(-50%);
+            width: 300px;
+            height: 300px;
+            background: radial-gradient(circle, rgba(139, 92, 246, 0.2) 0%, transparent 70%);
+            filter: blur(60px);
+            z-index: -1;
+            animation: crystalPulse 6s ease-in-out infinite;
+        }
+
+        @keyframes crystalPulse {
+            0%, 100% { 
+                transform: translateY(-50%) scale(1);
+                opacity: 0.5;
+            }
+            50% { 
+                transform: translateY(-50%) scale(1.2);
+                opacity: 0.8;
+            }
+        }
+
+        h1 {
+            font-size: 72px;
+            font-weight: 200;
+            letter-spacing: -2px;
+            margin-bottom: 16px;
+            background: linear-gradient(135deg, #e9d5ff 0%, #a78bfa 50%, #8b5cf6 100%);
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 60px var(--theme-glow-light);
+            filter: drop-shadow(0 0 30px var(--theme-glow-light));
+        }
+
+        .subtitle {
+            font-size: 18px;
+            font-weight: 300;
+            color: var(--theme-text-2);
+            opacity: 0.7;
+        }
+
+        .search-container {
+            margin-bottom: 40px;
+        }
+
+        .search-box {
+            position: relative;
+            width: 100%;
+            max-width: 600px;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 16px 50px 16px 20px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            color: #e9d5ff;
+            font-size: 15px;
+            outline: none;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(20px);
+            box-shadow: 
+                0 4px 20px rgba(0, 0, 0, 0.2),
+                inset 0 1px 0 rgba(139, 92, 246, 0.1);
+        }
+
+        .search-input:focus {
+            border-color: #8b5cf6;
+            box-shadow: 
+                0 0 0 2px rgba(139, 92, 246, 0.12), 
+                0 8px 28px rgba(139, 92, 246, 0.25),
+                inset 0 1px 0 rgba(139, 92, 246, 0.15);
+            background: rgba(15, 15, 26, 0.9);
+        }
+
+        .search-input::placeholder {
+            color: #a78bfa;
+            opacity: 0.4;
+        }
+
+        .search-icon {
+            position: absolute;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #a78bfa;
+            opacity: 0.6;
+        }
+
+        .controls {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 32px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            color: var(--theme-text-2);
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(20px);
+        }
+
+        .btn:hover {
+            background: rgba(139, 92, 246, 0.15);
+            border-color: #8b5cf6;
+            color: #e9d5ff;
+            box-shadow: 0 0 20px rgba(139, 92, 246, 0.3);
+        }
+
+        .btn:active {
+            transform: scale(0.97);
+        }
+
+        .history-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .history-group {
+            margin-bottom: 32px;
+        }
+
+        .group-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--theme-text-2);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 16px;
+            opacity: 0.7;
+        }
+
+        .history-item {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 16px 20px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            backdrop-filter: blur(20px);
+        }
+
+        .history-item:hover {
+            background: rgba(139, 92, 246, 0.15);
+            border-color: #8b5cf6;
+            box-shadow: 0 4px 20px rgba(139, 92, 246, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .history-favicon {
+            width: 20px;
+            height: 20px;
+            border-radius: 4px;
+            flex-shrink: 0;
+            object-fit: contain;
+        }
+
+        .history-content {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .history-title {
+            font-size: 15px;
+            font-weight: 500;
+            color: #e9d5ff;
+            margin-bottom: 4px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .history-url {
+            font-size: 13px;
+            color: var(--theme-text-2);
+            opacity: 0.6;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .history-time {
+            font-size: 12px;
+            color: var(--theme-text-2);
+            opacity: 0.5;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+
+        .history-delete {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            background: transparent;
+            border: 1px solid transparent;
+            color: var(--theme-text-2);
+            cursor: pointer;
+            opacity: 0;
+            transition: all 0.2s ease;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .history-item:hover .history-delete {
+            opacity: 1;
+        }
+
+        .history-delete:hover {
+            background: rgba(248, 113, 113, 0.1);
+            border-color: rgba(248, 113, 113, 0.3);
+            color: #f87171;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 80px 20px;
+            color: var(--theme-text-2);
+            opacity: 0.5;
+            font-size: 16px;
+        }
+
+        .empty-state-icon {
+            font-size: 64px;
+            margin-bottom: 20px;
+            opacity: 0.3;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>History</h1>
+            <p class="subtitle">Your browsing history</p>
+        </div>
+
+        <div class="search-container">
+            <div class="search-box">
+                <input 
+                    type="text" 
+                    class="search-input" 
+                    id="searchInput"
+                    placeholder="Search history..."
+                    autocomplete="off"
+                    spellcheck="false"
+                />
+                <div class="search-icon">
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+                        <path d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" fill="currentColor"/>
+                    </svg>
+                </div>
+            </div>
+        </div>
+
+        <div class="controls">
+            <button class="btn" id="clearTodayBtn">Clear Today</button>
+            <button class="btn" id="clearAllBtn">Clear All History</button>
+        </div>
+
+        <div id="historyContainer">
+            <div class="empty-state">
+                <div class="empty-state-icon">🕐</div>
+                <div>No browsing history yet</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Apply theme immediately
+        const savedTheme = localStorage.getItem('theme') || 'obsidian';
+        document.documentElement.setAttribute('data-theme', savedTheme);
+        
+        // Apply dot matrix font if enabled
+        const dotMatrixEnabled = localStorage.getItem('dotMatrixToggle') === 'true';
+        if (dotMatrixEnabled) {
+            document.body.classList.add('dot-matrix-font');
+        }
+
+        // Listen for theme changes
+        window.addEventListener('storage', (e) => {
+            if (e.key === 'theme') {
+                const newTheme = e.newValue || 'obsidian';
+                document.documentElement.setAttribute('data-theme', newTheme);
+            }
+            if (e.key === 'dotMatrixToggle') {
+                if (e.newValue === 'true') {
+                    document.body.classList.add('dot-matrix-font');
+                } else {
+                    document.body.classList.remove('dot-matrix-font');
+                }
+            }
+        });
+
+        // Load and display history
+        function loadHistory() {
+            const saved = localStorage.getItem('history');
+            return saved ? JSON.parse(saved) : [];
+        }
+
+        function saveHistory(history) {
+            localStorage.setItem('history', JSON.stringify(history));
+        }
+
+        function formatTime(timestamp) {
+            const now = Date.now();
+            const diff = now - timestamp;
+            const seconds = Math.floor(diff / 1000);
+            const minutes = Math.floor(seconds / 60);
+            const hours = Math.floor(minutes / 60);
+            const days = Math.floor(hours / 24);
+
+            if (seconds < 60) return 'Just now';
+            if (minutes < 60) return `${minutes}m ago`;
+            if (hours < 24) return `${hours}h ago`;
+            if (days < 7) return `${days}d ago`;
+            
+            const date = new Date(timestamp);
+            return date.toLocaleDateString();
+        }
+
+        function groupHistoryByTime(history) {
+            const now = Date.now();
+            const today = [];
+            const yesterday = [];
+            const thisWeek = [];
+            const older = [];
+
+            history.forEach(item => {
+                const diff = now - item.timestamp;
+                const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+
+                if (days === 0) {
+                    today.push(item);
+                } else if (days === 1) {
+                    yesterday.push(item);
+                } else if (days < 7) {
+                    thisWeek.push(item);
+                } else {
+                    older.push(item);
+                }
+            });
+
+            return { today, yesterday, thisWeek, older };
+        }
+
+        function renderHistory(filter = '') {
+            let history = loadHistory();
+            
+            // Filter if search query exists
+            if (filter) {
+                history = history.filter(item => 
+                    item.title.toLowerCase().includes(filter.toLowerCase()) ||
+                    item.url.toLowerCase().includes(filter.toLowerCase())
+                );
+            }
+
+            const container = document.getElementById('historyContainer');
+            
+            if (history.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">🕐</div>
+                        <div>${filter ? 'No results found' : 'No browsing history yet'}</div>
+                    </div>
+                `;
+                return;
+            }
+
+            const groups = groupHistoryByTime(history);
+            let html = '';
+
+            const renderGroup = (title, items) => {
+                if (items.length === 0) return '';
+                
+                let groupHtml = `<div class="history-group"><div class="group-title">${title}</div><div class="history-list">`;
+                
+                items.forEach(item => {
+                    const favicon = item.favicon || "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><circle cx='8' cy='8' r='7' fill='%238b5cf6'/></svg>";
+                    
+                    groupHtml += `
+                        <div class="history-item" data-url="${item.url}">
+                            <img class="history-favicon" src="${favicon}" alt="">
+                            <div class="history-content">
+                                <div class="history-title">${item.title || 'Untitled'}</div>
+                                <div class="history-url">${item.url}</div>
+                            </div>
+                            <div class="history-time">${formatTime(item.timestamp)}</div>
+                            <button class="history-delete" data-url="${item.url}">
+                                <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+                                    <path d="M5.5 5.5A.5.5 0 016 6v6a.5.5 0 01-1 0V6a.5.5 0 01.5-.5zm2.5 0a.5.5 0 01.5.5v6a.5.5 0 01-1 0V6a.5.5 0 01.5-.5zm3 .5a.5.5 0 00-1 0v6a.5.5 0 001 0V6z"/>
+                                    <path fill-rule="evenodd" d="M14.5 3a1 1 0 01-1 1H13v9a2 2 0 01-2 2H5a2 2 0 01-2-2V4h-.5a1 1 0 01-1-1V2a1 1 0 011-1H6a1 1 0 011-1h2a1 1 0 011 1h3.5a1 1 0 011 1v1zM4.118 4L4 4.059V13a1 1 0 001 1h6a1 1 0 001-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z"/>
+                                </svg>
+                            </button>
+                        </div>
+                    `;
+                });
+                
+                groupHtml += '</div></div>';
+                return groupHtml;
+            };
+
+            html += renderGroup('Today', groups.today);
+            html += renderGroup('Yesterday', groups.yesterday);
+            html += renderGroup('This Week', groups.thisWeek);
+            html += renderGroup('Older', groups.older);
+
+            container.innerHTML = html;
+
+            // Add click handlers
+            document.querySelectorAll('.history-item').forEach(item => {
+                item.addEventListener('click', (e) => {
+                    if (!e.target.closest('.history-delete')) {
+                        const url = item.dataset.url;
+                        if (window.parent && window.parent !== window) {
+                            window.parent.postMessage({ type: 'navigate', url }, '*');
+                        } else {
+                            window.location.href = url;
+                        }
+                    }
+                });
+            });
+
+            // Add delete handlers
+            document.querySelectorAll('.history-delete').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const url = btn.dataset.url;
+                    let history = loadHistory();
+                    history = history.filter(item => item.url !== url);
+                    saveHistory(history);
+                    renderHistory(document.getElementById('searchInput').value);
+                });
+            });
+        }
+
+        // Search functionality
+        document.getElementById('searchInput').addEventListener('input', (e) => {
+            renderHistory(e.target.value);
+        });
+
+        // Clear buttons
+        document.getElementById('clearTodayBtn').addEventListener('click', () => {
+            const now = Date.now();
+            let history = loadHistory();
+            history = history.filter(item => {
+                const diff = now - item.timestamp;
+                const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+                return days > 0;
+            });
+            saveHistory(history);
+            renderHistory();
+        });
+
+        document.getElementById('clearAllBtn').addEventListener('click', () => {
+            if (confirm('Are you sure you want to clear all browsing history?')) {
+                saveHistory([]);
+                renderHistory();
+            }
+        });
+
+        // Initial render
+        renderHistory();
+
+        // Listen for history updates from parent
+        window.addEventListener('storage', (e) => {
+            if (e.key === 'history') {
+                renderHistory(document.getElementById('searchInput').value);
+            }
+        });
+    </script>
+</body>
+</html>
