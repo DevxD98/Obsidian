@@ -21,7 +21,11 @@ _Built with Electron for macOS, Windows & Linux_
 ### 🎨 Stunning Design
 
 - **Obsidian Theme** - Glassmorphic UI with purple gradients and crystal effects
-- **Animated Backgrounds** - Pulsing glow effects and flickering grids
+- **4 Animated Backgrounds** - Choose from:
+  - **Default** - Flickering grid with purple glow
+  - **Cosmic Portal** - 3D vortex with interactive zoom/rotate/pan (use mouse to control!)
+  - **Light Speed** - Highway racing effect (click to speed up!)
+  - **Matrix Rain** - Pink code rain animation
 - **Native Feel** - Hidden title bar with macOS traffic light positioning
 - **Custom Fonts** - Optional dot matrix retro font mode
 - **Theme Variants** - Multiple color themes (Obsidian, Crimson, Ocean, Forest, Sunset)

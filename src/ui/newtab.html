@@ -71,6 +71,60 @@
             --theme-glow-strong: rgba(139, 92, 246, 0.9);
         }
 
+        /* Cosmic Portal Background Canvas */
+        #cosmicPortalCanvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+            display: none;
+        }
+
+        #cosmicPortalCanvas.active {
+            display: block;
+            pointer-events: auto; /* Enable interactions */
+            cursor: grab; /* Show it's draggable */
+        }
+
+        #cosmicPortalCanvas.active:active {
+            cursor: grabbing; /* Show when dragging */
+        }
+
+        /* Light Speed Canvas */
+        #lightSpeedCanvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+            display: none;
+        }
+
+        #lightSpeedCanvas.active {
+            display: block;
+        }
+
+        /* Matrix Rain Canvas */
+        #matrixRainCanvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+            display: none;
+        }
+
+        #matrixRainCanvas.active {
+            display: block;
+        }
+
         /* Obsidian-inspired animated background with particles */
         body::before {
             content: '';
@@ -84,6 +138,18 @@
             pointer-events: none;
             z-index: 0;
             animation: pulseGlow 8s ease-in-out infinite;
+        }
+
+        body.cosmic-portal::before {
+            display: none;
+        }
+
+        body.light-speed::before {
+            display: none;
+        }
+
+        body.matrix-rain::before {
+            display: none;
         }
 
         @keyframes pulseGlow {
@@ -122,6 +188,12 @@
             margin: 0 auto;
             text-align: center;
             padding: 0 60px;
+            pointer-events: none; /* Allow clicks to pass through empty space */
+        }
+
+        /* Re-enable pointer events for interactive elements */
+        .container > * {
+            pointer-events: auto;
         }
 
         .time-widget {
@@ -340,89 +412,72 @@
         /* Customize Button */
         .customize-btn {
             position: fixed;
-            bottom: 32px;
-            right: 32px;
-            width: 56px;
-            height: 56px;
-            background: linear-gradient(135deg, #8b5cf6, #6366f1);
-            border: 2px solid rgba(139, 92, 246, 0.5);
+            bottom: 20px;
+            right: 20px;
+            width: 36px;
+            height: 36px;
+            background: rgba(139, 92, 246, 0.15);
+            border: 1px solid rgba(139, 92, 246, 0.2);
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
             cursor: pointer;
             transition: all 0.3s ease;
-            box-shadow: 
-                0 8px 32px rgba(139, 92, 246, 0.4),
-                inset 0 1px 0 rgba(255, 255, 255, 0.2);
             z-index: 100;
-            animation: pulse 3s ease-in-out infinite;
+            opacity: 0.4;
+            backdrop-filter: blur(10px);
         }
 
         .customize-btn:hover {
-            transform: scale(1.1) rotate(15deg);
-            box-shadow: 
-                0 12px 48px rgba(139, 92, 246, 0.6),
-                inset 0 1px 0 rgba(255, 255, 255, 0.3);
+            opacity: 1;
+            background: rgba(139, 92, 246, 0.25);
+            border-color: rgba(139, 92, 246, 0.4);
+            transform: scale(1.05);
+            box-shadow: 0 4px 16px rgba(139, 92, 246, 0.2);
         }
 
         .customize-btn:active {
-            transform: scale(0.95) rotate(15deg);
+            transform: scale(0.95);
         }
 
         .customize-btn svg {
-            width: 24px;
-            height: 24px;
-            color: white;
-            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+            width: 18px;
+            height: 18px;
+            color: rgba(139, 92, 246, 0.8);
         }
 
-        @keyframes pulse {
-            0%, 100% {
-                box-shadow: 
-                    0 8px 32px rgba(139, 92, 246, 0.4),
-                    inset 0 1px 0 rgba(255, 255, 255, 0.2);
-            }
-            50% {
-                box-shadow: 
-                    0 8px 32px rgba(139, 92, 246, 0.6),
-                    0 0 0 8px rgba(139, 92, 246, 0.1),
-                    inset 0 1px 0 rgba(255, 255, 255, 0.2);
-            }
-        }
+        /* Widget Panel */
 
-        /* Widget Container - Hidden by default */
+        /* Widget Container - Right Side Card */
         .widgets-container {
             position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 90%;
-            max-width: 900px;
-            max-height: 80vh;
-            background: rgba(15, 15, 26, 0.95);
-            border: 1px solid rgba(139, 92, 246, 0.3);
-            border-radius: 24px;
+            top: 0;
+            right: 0;
+            height: 100vh;
+            width: 420px;
+            background: rgba(15, 15, 26, 0.98);
+            border-left: 1px solid rgba(139, 92, 246, 0.3);
             backdrop-filter: blur(24px);
-            box-shadow: 0 24px 64px rgba(0, 0, 0, 0.5);
+            box-shadow: -8px 0 32px rgba(0, 0, 0, 0.5);
             z-index: 1000;
             display: none;
             flex-direction: column;
-            animation: slideUp 0.3s ease-out;
+            animation: slideInRight 0.3s ease-out;
         }
 
         .widgets-container.active {
             display: flex;
         }
 
-        @keyframes slideUp {
+        @keyframes slideInRight {
             from {
                 opacity: 0;
-                transform: translate(-50%, -40%);
+                transform: translateX(100%);
             }
             to {
                 opacity: 1;
-                transform: translate(-50%, -50%);
+                transform: translateX(0);
             }
         }
 
@@ -464,14 +519,43 @@
         }
 
         .widget-content {
-            padding: 28px;
+            padding: 0;
             overflow-y: auto;
             flex: 1;
         }
 
+        .widget-category {
+            padding: 28px;
+            border-bottom: 1px solid rgba(139, 92, 246, 0.1);
+        }
+
+        .widget-category:last-child {
+            border-bottom: none;
+        }
+
+        .category-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #8b5cf6;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .category-title::before {
+            content: '';
+            width: 4px;
+            height: 16px;
+            background: linear-gradient(135deg, #8b5cf6, #6366f1);
+            border-radius: 2px;
+        }
+
         .widget-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            grid-template-columns: repeat(2, 1fr);
             gap: 16px;
         }
 
@@ -541,10 +625,23 @@
             .search-container {
                 max-width: 100%;
             }
+            .widgets-container {
+                width: 85vw;
+                max-width: 420px;
+            }
         }
     </style>
 </head>
 <body>
+    <!-- Cosmic Portal Canvas Background -->
+    <canvas id="cosmicPortalCanvas"></canvas>
+    
+    <!-- Light Speed Canvas Background -->
+    <canvas id="lightSpeedCanvas"></canvas>
+    
+    <!-- Matrix Rain Canvas Background -->
+    <canvas id="matrixRainCanvas"></canvas>
+    
     <!-- Flickering Grid Background - Full Screen -->
     <canvas id="flickeringGrid" class="flickering-grid"></canvas>
     
@@ -592,84 +689,176 @@
             </div>
         </div>
         <div class="widget-content">
-            <div class="widget-grid">
-                <!-- Clock Widget -->
-                <div class="widget-card" onclick="addWidget('clock')">
-                    <div class="widget-icon">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <circle cx="12" cy="12" r="10"></circle>
-                            <polyline points="12 6 12 12 16 14"></polyline>
-                        </svg>
+            <!-- Wallpaper Category -->
+            <div class="widget-category">
+                <div class="category-title">Wallpaper</div>
+                <div class="widget-grid">
+                    <!-- Cosmic Portal -->
+                    <div class="widget-card" onclick="setWallpaper('cosmic-portal')">
+                        <div class="widget-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <circle cx="12" cy="12" r="6"></circle>
+                                <circle cx="12" cy="12" r="2"></circle>
+                            </svg>
+                        </div>
+                        <div class="widget-name">Cosmic Portal</div>
+                        <div class="widget-desc">3D Vortex</div>
                     </div>
-                    <div class="widget-name">Clock</div>
-                    <div class="widget-desc">Current Time</div>
-                </div>
 
-                <!-- Weather Widget -->
-                <div class="widget-card coming-soon">
-                    <div class="widget-icon">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"></path>
-                        </svg>
+                    <!-- Default Gradient -->
+                    <div class="widget-card" onclick="setWallpaper('default')">
+                        <div class="widget-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                                <circle cx="8.5" cy="8.5" r="1.5"></circle>
+                                <polyline points="21 15 16 10 5 21"></polyline>
+                            </svg>
+                        </div>
+                        <div class="widget-name">Default</div>
+                        <div class="widget-desc">Purple Glow</div>
                     </div>
-                    <div class="widget-name">Weather</div>
-                    <div class="widget-desc">Local Weather</div>
-                </div>
 
-                <!-- Notes Widget -->
-                <div class="widget-card coming-soon">
-                    <div class="widget-icon">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-                            <polyline points="14 2 14 8 20 8"></polyline>
-                            <line x1="16" y1="13" x2="8" y2="13"></line>
-                            <line x1="16" y1="17" x2="8" y2="17"></line>
-                            <polyline points="10 9 9 9 8 9"></polyline>
-                        </svg>
+                    <!-- Light Speed -->
+                    <div class="widget-card" onclick="setWallpaper('light-speed')">
+                        <div class="widget-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M8 3L3 8l5 5"></path>
+                                <path d="M16 3l5 5-5 5"></path>
+                                <line x1="2" y1="12" x2="22" y2="12"></line>
+                                <line x1="2" y1="17" x2="22" y2="17"></line>
+                            </svg>
+                        </div>
+                        <div class="widget-name">Light Speed</div>
+                        <div class="widget-desc">Highway Rush</div>
                     </div>
-                    <div class="widget-name">Quick Notes</div>
-                    <div class="widget-desc">Sticky Notes</div>
-                </div>
 
-                <!-- Calendar Widget -->
-                <div class="widget-card coming-soon">
-                    <div class="widget-icon">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
-                            <line x1="16" y1="2" x2="16" y2="6"></line>
-                            <line x1="8" y1="2" x2="8" y2="6"></line>
-                            <line x1="3" y1="10" x2="21" y2="10"></line>
-                        </svg>
+                    <!-- Matrix Rain -->
+                    <div class="widget-card" onclick="setWallpaper('matrix-rain')">
+                        <div class="widget-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <line x1="4" y1="21" x2="4" y2="14"></line>
+                                <line x1="4" y1="10" x2="4" y2="3"></line>
+                                <line x1="12" y1="21" x2="12" y2="12"></line>
+                                <line x1="12" y1="8" x2="12" y2="3"></line>
+                                <line x1="20" y1="21" x2="20" y2="16"></line>
+                                <line x1="20" y1="12" x2="20" y2="3"></line>
+                            </svg>
+                        </div>
+                        <div class="widget-name">Matrix Rain</div>
+                        <div class="widget-desc">Code Rain</div>
                     </div>
-                    <div class="widget-name">Calendar</div>
-                    <div class="widget-desc">Daily Planner</div>
-                </div>
 
-                <!-- Timer Widget -->
-                <div class="widget-card coming-soon">
-                    <div class="widget-icon">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <circle cx="12" cy="12" r="10"></circle>
-                            <polyline points="12 6 12 12 16 14"></polyline>
-                        </svg>
+                    <!-- Custom Image -->
+                    <div class="widget-card coming-soon">
+                        <div class="widget-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                <polyline points="17 8 12 3 7 8"></polyline>
+                                <line x1="12" y1="3" x2="12" y2="15"></line>
+                            </svg>
+                        </div>
+                        <div class="widget-name">Custom Image</div>
+                        <div class="widget-desc">Upload Photo</div>
                     </div>
-                    <div class="widget-name">Timer</div>
-                    <div class="widget-desc">Countdown</div>
-                </div>
 
-                <!-- Calculator Widget -->
-                <div class="widget-card coming-soon">
-                    <div class="widget-icon">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <rect x="4" y="2" width="16" height="20" rx="2" ry="2"></rect>
-                            <line x1="8" y1="6" x2="16" y2="6"></line>
-                            <line x1="8" y1="10" x2="16" y2="10"></line>
-                            <line x1="8" y1="14" x2="16" y2="14"></line>
-                            <line x1="8" y1="18" x2="16" y2="18"></line>
-                        </svg>
+                    <!-- Unsplash -->
+                    <div class="widget-card coming-soon">
+                        <div class="widget-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                                <circle cx="8.5" cy="8.5" r="1.5"></circle>
+                                <polyline points="21 15 16 10 5 21"></polyline>
+                            </svg>
+                        </div>
+                        <div class="widget-name">Unsplash</div>
+                        <div class="widget-desc">Daily Photos</div>
                     </div>
-                    <div class="widget-name">Calculator</div>
-                    <div class="widget-desc">Quick Math</div>
+                </div>
+            </div>
+
+            <!-- Widgets Category -->
+            <div class="widget-category">
+                <div class="category-title">Widgets</div>
+                <div class="widget-grid">
+                    <!-- Clock Widget -->
+                    <div class="widget-card" onclick="addWidget('clock')">
+                        <div class="widget-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <polyline points="12 6 12 12 16 14"></polyline>
+                            </svg>
+                        </div>
+                        <div class="widget-name">Clock</div>
+                        <div class="widget-desc">Current Time</div>
+                    </div>
+
+                    <!-- Weather Widget -->
+                    <div class="widget-card coming-soon">
+                        <div class="widget-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"></path>
+                            </svg>
+                        </div>
+                        <div class="widget-name">Weather</div>
+                        <div class="widget-desc">Local Weather</div>
+                    </div>
+
+                    <!-- Notes Widget -->
+                    <div class="widget-card coming-soon">
+                        <div class="widget-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                                <polyline points="14 2 14 8 20 8"></polyline>
+                                <line x1="16" y1="13" x2="8" y2="13"></line>
+                                <line x1="16" y1="17" x2="8" y2="17"></line>
+                                <polyline points="10 9 9 9 8 9"></polyline>
+                            </svg>
+                        </div>
+                        <div class="widget-name">Quick Notes</div>
+                        <div class="widget-desc">Sticky Notes</div>
+                    </div>
+
+                    <!-- Calendar Widget -->
+                    <div class="widget-card coming-soon">
+                        <div class="widget-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                                <line x1="16" y1="2" x2="16" y2="6"></line>
+                                <line x1="8" y1="2" x2="8" y2="6"></line>
+                                <line x1="3" y1="10" x2="21" y2="10"></line>
+                            </svg>
+                        </div>
+                        <div class="widget-name">Calendar</div>
+                        <div class="widget-desc">Daily Planner</div>
+                    </div>
+
+                    <!-- Timer Widget -->
+                    <div class="widget-card coming-soon">
+                        <div class="widget-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <polyline points="12 6 12 12 16 14"></polyline>
+                            </svg>
+                        </div>
+                        <div class="widget-name">Timer</div>
+                        <div class="widget-desc">Countdown</div>
+                    </div>
+
+                    <!-- Calculator Widget -->
+                    <div class="widget-card coming-soon">
+                        <div class="widget-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <rect x="4" y="2" width="16" height="20" rx="2" ry="2"></rect>
+                                <line x1="8" y1="6" x2="16" y2="6"></line>
+                                <line x1="8" y1="10" x2="16" y2="10"></line>
+                                <line x1="8" y1="14" x2="16" y2="14"></line>
+                                <line x1="8" y1="18" x2="16" y2="18"></line>
+                            </svg>
+                        </div>
+                        <div class="widget-name">Calculator</div>
+                        <div class="widget-desc">Quick Math</div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -887,13 +1076,6 @@
             if (window.flickeringGrid) {
                 window.flickeringGrid.updateColor(colors.primary);
             }
-
-            // Update customize button
-            const customizeBtn = document.querySelector('.customize-btn');
-            if (customizeBtn) {
-                customizeBtn.style.background = `linear-gradient(135deg, ${colors.text[2]}, ${colors.text[1]})`;
-                customizeBtn.style.borderColor = `${colors.text[2]}80`;
-            }
         }
 
         // Apply theme on load
@@ -1083,6 +1265,153 @@
             if (e.key === 'Enter') {
                 const query = e.target.value.trim();
                 handleSearch(query);
+            }
+        });
+
+        // Global wallpaper setter (will be overridden by module)
+        window.setWallpaper = function(type) {
+            console.log('Wallpaper function called with type:', type);
+        };
+
+    </script>
+
+    <!-- Import map for Three.js modules -->
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "./lib/three/build/three.module.js",
+                "three/examples/jsm/": "./lib/three/examples/jsm/",
+                "postprocessing": "./lib/postprocessing/build/index.js"
+            }
+        }
+    </script>
+
+    <!-- Three.js Modules -->
+    <script type="module">
+        import { CosmicPortal } from './cosmic-portal.js';
+        import { LightSpeed } from './light-speed.js';
+        import { MatrixRain } from './matrix-rain.js';
+
+        // Wallpaper management
+        let cosmicPortal = null;
+        let lightSpeed = null;
+        let matrixRain = null;
+
+        // Override global function with module implementation
+        window.setWallpaper = function(type) {
+            console.log('setWallpaper called with type:', type);
+            
+            const cosmicCanvas = document.getElementById('cosmicPortalCanvas');
+            const lightCanvas = document.getElementById('lightSpeedCanvas');
+            const matrixCanvas = document.getElementById('matrixRainCanvas');
+            const body = document.body;
+            const flickeringGrid = document.getElementById('flickeringGrid');
+            
+            console.log('Canvas elements:', { cosmicCanvas, lightCanvas, matrixCanvas, flickeringGrid });
+            
+            // Save preference
+            localStorage.setItem('wallpaper', type);
+            
+            // Stop ALL animations first
+            if (cosmicPortal) {
+                console.log('Destroying cosmic portal');
+                cosmicPortal.destroy();
+                cosmicPortal = null;
+            }
+            if (lightSpeed) {
+                console.log('Destroying light speed');
+                lightSpeed.destroy();
+                lightSpeed = null;
+            }
+            if (matrixRain) {
+                console.log('Destroying matrix rain');
+                matrixRain.destroy();
+                matrixRain = null;
+            }
+            
+            // Hide all canvases
+            cosmicCanvas.classList.remove('active');
+            lightCanvas.classList.remove('active');
+            matrixCanvas.classList.remove('active');
+            body.classList.remove('cosmic-portal', 'light-speed', 'matrix-rain');
+            
+            // Activate selected wallpaper
+            if (type === 'cosmic-portal') {
+                console.log('Activating cosmic portal');
+                cosmicCanvas.classList.add('active');
+                body.classList.add('cosmic-portal');
+                if (flickeringGrid) flickeringGrid.style.display = 'none';
+                
+                try {
+                    // Create and initialize Three.js Cosmic Portal
+                    cosmicPortal = new CosmicPortal(cosmicCanvas, {
+                        portalComplexity: 4,
+                        crystalCount: 12,
+                        primaryColor: '#9b59b6',
+                        secondaryColor: '#3498db',
+                        accentColor: '#e74c3c',
+                        vortexColor: '#2ecc71',
+                        rotationSpeed: 0.3,
+                        bloomStrength: 1.2,
+                        bloomRadius: 0.7,
+                        bloomThreshold: 0.2,
+                        dimensionShift: 4
+                    });
+                    cosmicPortal.init();
+                    console.log('Cosmic portal initialized successfully');
+                } catch (error) {
+                    console.error('Error initializing cosmic portal:', error);
+                }
+            } else if (type === 'light-speed') {
+                console.log('Activating light speed');
+                lightCanvas.classList.add('active');
+                body.classList.add('light-speed');
+                if (flickeringGrid) flickeringGrid.style.display = 'none';
+                
+                try {
+                    // Create and initialize Light Speed
+                    lightSpeed = new LightSpeed(lightCanvas, {
+                        // Will add options after creating the class
+                    });
+                    lightSpeed.init();
+                    console.log('Light speed initialized successfully');
+                } catch (error) {
+                    console.error('Error initializing light speed:', error);
+                }
+            } else if (type === 'matrix-rain') {
+                console.log('Activating matrix rain');
+                matrixCanvas.classList.add('active');
+                body.classList.add('matrix-rain');
+                if (flickeringGrid) flickeringGrid.style.display = 'none';
+                
+                try {
+                    // Create and initialize Matrix Rain
+                    matrixRain = new MatrixRain(matrixCanvas, {
+                        color: '#f4427d', // Pink color from codepen
+                        fontSize: 10,
+                        speed: 35
+                    });
+                    matrixRain.init();
+                    console.log('Matrix rain initialized successfully');
+                } catch (error) {
+                    console.error('Error initializing matrix rain:', error);
+                }
+            } else {
+                console.log('Activating default wallpaper');
+                // Default wallpaper - show flickering grid
+                if (flickeringGrid) flickeringGrid.style.display = '';
+            }
+        };
+
+        // Load saved wallpaper on page load
+        window.addEventListener('DOMContentLoaded', () => {
+            const savedWallpaper = localStorage.getItem('wallpaper');
+            if (savedWallpaper === 'cosmic-portal') {
+                window.setWallpaper('cosmic-portal');
+            } else if (savedWallpaper === 'light-speed') {
+                window.setWallpaper('light-speed');
+            } else if (savedWallpaper === 'matrix-rain') {
+                window.setWallpaper('matrix-rain');
             }
         });
     </script>

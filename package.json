@@ -7,10 +7,14 @@
     "start": "electron .",
     "dev": "electron . --dev",
     "build": "electron-builder",
-    "build:mac": "electron-builder --mac",
-    "build:win": "electron-builder --win",
+    "build:mac": "electron-builder --mac --universal",
+    "build:win": "electron-builder --win --x64 --ia32",
+    "build:win64": "electron-builder --win --x64",
+    "build:linux": "electron-builder --linux",
     "build:all": "electron-builder -mwl",
-    "generate-icons": "electron-icon-maker --input=./assets/logo.png --output=./assets"
+    "dist:mac": "npm run build:mac",
+    "dist:win": "npm run build:win",
+    "dist:all": "npm run build:all"
   },
   "keywords": [
     "browser",
@@ -22,35 +26,117 @@
   "author": "Your Name",
   "license": "MIT",
   "devDependencies": {
-    "electron": "^28.0.0",
-    "electron-builder": "^24.9.1",
-    "electron-icon-maker": "^0.0.5"
+    "electron": "^39.0.0",
+    "electron-builder": "^24.9.1"
   },
   "build": {
     "appId": "com.obsidian.browser",
-    "productName": "Obsidian",
+    "productName": "Obsidian Browser",
+    "copyright": "Copyright © 2025",
+    "files": [
+      "src/**/*",
+      "assets/**/*",
+      "node_modules/**/*",
+      "package.json"
+    ],
+    "directories": {
+      "buildResources": "assets/icons"
+    },
     "mac": {
       "category": "public.app-category.productivity",
       "icon": "assets/icons/mac/icon.icns",
       "target": [
-        "dmg",
+        {
+          "target": "dmg",
+          "arch": [
+            "x64",
+            "arm64",
+            "universal"
+          ]
+        },
         "zip"
       ],
-      "hardenedRuntime": true,
+      "hardenedRuntime": false,
       "gatekeeperAssess": false,
       "entitlements": "build/entitlements.mac.plist",
-      "entitlementsInherit": "build/entitlements.mac.plist"
+      "entitlementsInherit": "build/entitlements.mac.plist",
+      "darkModeSupport": true,
+      "identity": null
+    },
+    "dmg": {
+      "icon": "assets/icons/mac/icon.icns",
+      "backgroundColor": "#1a1a2e",
+      "window": {
+        "width": 650,
+        "height": 480
+      },
+      "contents": [
+        {
+          "x": 144,
+          "y": 180,
+          "type": "file"
+        },
+        {
+          "x": 396,
+          "y": 180,
+          "type": "link",
+          "path": "/Applications"
+        },
+        {
+          "x": 200,
+          "y": 350,
+          "type": "file",
+          "path": "assets/INSTALL_README.txt"
+        },
+        {
+          "x": 450,
+          "y": 350,
+          "type": "file",
+          "path": "assets/fix-mac.sh",
+          "name": "Fix macOS Security.command"
+        }
+      ]
     },
     "win": {
-      "target": "nsis",
-      "icon": "assets/icons/win/icon.ico"
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64",
+            "ia32"
+          ]
+        },
+        "portable"
+      ],
+      "icon": "assets/icons/win/icon.ico",
+      "artifactName": "${productName}-${version}-${arch}.${ext}"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "installerIcon": "assets/icons/win/icon.ico",
+      "uninstallerIcon": "assets/icons/win/icon.ico",
+      "installerHeaderIcon": "assets/icons/win/icon.ico",
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "Obsidian Browser"
+    },
+    "portable": {
+      "artifactName": "${productName}-${version}-portable.${ext}"
     },
     "linux": {
       "target": [
         "AppImage",
-        "deb"
+        "deb",
+        "rpm"
       ],
-      "category": "Network"
+      "category": "Network",
+      "icon": "assets/icons/png",
+      "maintainer": "Obsidian Browser Team"
     }
+  },
+  "dependencies": {
+    "postprocessing": "^6.37.8",
+    "three": "^0.180.0"
   }
 }

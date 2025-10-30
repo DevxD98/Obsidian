@@ -442,7 +442,8 @@ function createWindow() {
     }
   });
 
-  mainWindow.setContentProtection(true);
+  // Allow screenshots for testing/documentation
+  // mainWindow.setContentProtection(true); // Disabled to enable screenshots
   mainWindow.setMenuBarVisibility(false);
 
   mainWindow.loadFile('src/ui/index.html');
